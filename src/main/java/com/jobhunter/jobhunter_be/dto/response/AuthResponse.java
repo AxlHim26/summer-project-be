@@ -13,7 +13,7 @@ import java.util.Set;
 public class AuthResponse {
     private String email;
     private String fullName;
-    private Set<Role> roles;
+    private Role role;
     private String token;
     private String refreshToken;
 }

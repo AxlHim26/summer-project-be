@@ -1,5 +1,6 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,8 +22,9 @@ public class Role implements GrantedAuthority {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "role")
-    private Set<User> users;
+    public Role(String roleName) {
+        this.name = roleName;
+    }
 
     @Override
     public String getAuthority() {
