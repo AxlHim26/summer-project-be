@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: jobhunter-app-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+    depends_on:
+      - db
+    networks:
+      - jobhunter-network
+
+  db:
+    image: postgres:16
+    container_name: jobhunter-db
+    environment:
+      POSTGRES_DB: jobhunter
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - jobhunter-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - jobhunter-network
+
+volumes:
+  pgdata:
+
+networks:
+  jobhunter-network:
