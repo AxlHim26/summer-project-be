@@ -3,6 +3,8 @@ package com.jobhunter.jobhunter_be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -28,4 +30,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToOne(mappedBy = "user")
+    private Profile profile;
+
+    @OneToMany(mappedBy = "message")
+    private List<Message> messages;
 }
