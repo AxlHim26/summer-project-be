@@ -1,9 +1,11 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "conversation")
@@ -15,10 +17,22 @@ import java.sql.Date;
 public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private Long id;
 
-    @Column(name = "created_at")
+    @Column(name = "create_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private Date createAt;
+
+    @OneToMany(mappedBy = "conversation")
+    @JsonManagedReference
+    private List<Message> messages;
+
+    @OneToMany(mappedBy = "conversation")
+    @JsonManagedReference
+    private List<ConversationParticipant> participants;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = new Date();
+    }
 }

@@ -12,7 +12,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApiResponseCus<T> {
+public class RestResponse<T> {
 
     private int status;
     private String message;
@@ -30,8 +30,8 @@ public class ApiResponseCus<T> {
         return "unknown";
     }
 
-    public static <T> ApiResponseCus<T> success(T data, String message) {
-        return ApiResponseCus.<T>builder()
+    public static <T> RestResponse<T> success(T data, String message) {
+        return RestResponse.<T>builder()
                 .status(HttpStatus.OK.value())
                 .message(message)
                 .data(data)
@@ -40,12 +40,12 @@ public class ApiResponseCus<T> {
                 .build();
     }
 
-    public static <T> ApiResponseCus<T> success(String message) {
+    public static <T> RestResponse<T> success(String message) {
         return success(null, message);
     }
 
-    public static <T> ApiResponseCus<T> error(HttpStatus httpStatus, String message, String errorDetail) {
-        return ApiResponseCus.<T>builder()
+    public static <T> RestResponse<T> error(HttpStatus httpStatus, String message, String errorDetail) {
+        return RestResponse.<T>builder()
                 .status(httpStatus.value())
                 .message(message)
                 .errorDetail(errorDetail)
@@ -54,8 +54,8 @@ public class ApiResponseCus<T> {
                 .build();
     }
 
-    public static <T> ApiResponseCus<T> error(int status, String message, String errorDetail) {
-        return ApiResponseCus.<T>builder()
+    public static <T> RestResponse<T> error(int status, String message, String errorDetail) {
+        return RestResponse.<T>builder()
                 .status(status)
                 .message(message)
                 .errorDetail(errorDetail)

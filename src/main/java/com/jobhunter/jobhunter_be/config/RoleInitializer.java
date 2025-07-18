@@ -26,7 +26,7 @@ public class RoleInitializer {
         for (String roleName : defaultRoles) {
             boolean exists = roleRepository.existsByName(roleName);
             if (!exists) {
-                roleRepository.save(new Role(roleName));
+                roleRepository.save(new Role(0,roleName));
                 log.info("Created role: {}", roleName);
             } else {
                 log.info("Role already exists: {}", roleName);

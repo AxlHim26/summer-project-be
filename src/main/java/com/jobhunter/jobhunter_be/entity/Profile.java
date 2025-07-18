@@ -1,24 +1,26 @@
 package com.jobhunter.jobhunter_be.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "profile")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "profile")
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
 
     @Column(name = "avatar")
     private String avatar;
 
-    @Column(name = "about", columnDefinition = "text")
+    @Column(name = "about", columnDefinition = "TEXT")
     private String about;
 
     @Column(name = "address")
@@ -29,9 +31,5 @@ public class Profile {
 
     @OneToOne
     @JoinColumn(name = "social_link_id")
-    private SocialLink social_link;
-
-    @JoinColumn(name = "user_id")
-    @OneToOne
-    private User user;
+    private SocialLink socialLink;
 }

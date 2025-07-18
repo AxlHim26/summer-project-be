@@ -1,7 +1,7 @@
 package com.jobhunter.jobhunter_be.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobhunter.jobhunter_be.dto.common.ApiResponseCus;
+import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         log.warn("Access denied: {} | Reason: {}", request.getRequestURI(), accessDeniedException.getMessage());
 
-        ApiResponseCus<Object> apiResponse = ApiResponseCus.<Object>builder()
+        RestResponse<Object> apiResponse = RestResponse.<Object>builder()
                 .status(HttpStatus.FORBIDDEN.value())
                 .message("You do not have access to this resource.")
                 .errorDetail(Optional.ofNullable(accessDeniedException.getCause())

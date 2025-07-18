@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "candidate")
+@Table(name = "portfolio")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +16,7 @@ public class Portfolio {
     private Integer id;
 
     @JoinColumn(name = "candidate_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Candidate candidate;
 
     @Column(name = "link")

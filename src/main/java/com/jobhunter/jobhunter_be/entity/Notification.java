@@ -1,12 +1,13 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
-@Table(name = "candidate")
+@Table(name = "notification")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,19 +16,24 @@ import java.sql.Date;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "title")
     private String title;
 
-    @Column(name = "content", columnDefinition = "text")
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @JoinColumn(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    @Column(name = "create_at")
+    private Date createAt;
 
+    @OneToOne()
     @JoinColumn(name = "user_id")
-    @ManyToOne
+    @JsonBackReference
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = new Date();
+    }
 }

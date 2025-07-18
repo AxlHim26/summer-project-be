@@ -1,5 +1,7 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,18 +16,24 @@ import java.util.List;
 @Builder
 public class Candidate {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "experience")
+    @Column(name = "experience",  nullable = false)
     private String experience;
 
-    @Column(name = "education")
+    @Column(name = "education",   nullable = false)
     private String education;
 
-    @Column(name = "skill")
+    @Column(name = "skill",   nullable = false)
     private String skill;
 
-    @OneToMany(mappedBy = "candidate")
-    private List<Application> application;
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    @JsonBackReference
+    private User user;
+
+    @OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Portfolio> portfolios;
 }

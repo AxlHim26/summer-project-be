@@ -1,7 +1,10 @@
 package com.jobhunter.jobhunter_be.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "social_link")
@@ -9,19 +12,17 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SocialLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private int id;
 
-    @Column(name = "facebook_link", columnDefinition = "text")
-    private String facebook_link;
+    @Column(name = "facebook_link", columnDefinition = "TEXT")
+    private String facebookLink;
 
-    @Column(name = "twitter_link", columnDefinition = "text")
-    private String twitter_link;
+    @Column(name = "twitter_link", columnDefinition = "TEXT")
+    private String twitterLink;
 
-    @Column(name = "linkedin_link", columnDefinition = "text")
-    private String linkedin_link;
+    @Column(name = "linkedin_link", columnDefinition = "TEXT")
+    private String linkedinLink;
 }

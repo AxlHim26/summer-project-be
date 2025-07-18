@@ -1,8 +1,10 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
+
+import java.util.List;
 
 @Entity
 @Table(name = "application")
@@ -14,17 +16,25 @@ import org.springframework.boot.autoconfigure.batch.BatchProperties;
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @JoinColumn(name = "candidate_id")
     @ManyToOne
+    @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 
-    @JoinColumn(name = "job_id")
     @ManyToOne
+    @JoinColumn(name = "job_id")
     private Job job;
 
-    @JoinColumn(name = "resum_id")
+    @OneToOne
+    @JoinColumn(name = "resume_id")
+    private Resume resume;
+
     @ManyToOne
-    private Resum resum;
+    @JoinColumn(name = "stage_id")
+    private Stage stage;
+
+    @OneToMany(mappedBy = "application", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<NotesApplication>  notesApplications;
 }

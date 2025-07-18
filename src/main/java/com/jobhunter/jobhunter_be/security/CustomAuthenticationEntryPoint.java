@@ -1,7 +1,7 @@
 package com.jobhunter.jobhunter_be.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobhunter.jobhunter_be.dto.common.ApiResponseCus;
+import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         log.warn("Unauthorized access: {} | Reason: {}", request.getRequestURI(), authException.getMessage());
 
-        ApiResponseCus<Object> apiResponse = ApiResponseCus.<Object>builder()
+        RestResponse<Object> apiResponse = RestResponse.<Object>builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .message("Token is invalid!")
                 .errorDetail(Optional.ofNullable(authException.getCause())

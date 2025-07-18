@@ -1,30 +1,39 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
-@Table(name = "conversation_participants")
+@Table(name = "notes_application")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class NotesApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")
-    @ManyToOne
+    @JsonBackReference
     private Application application;
 
-    @Column(name = "message")
+    @Column(name = "message",  nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "created_at")
+    @Column(name = "create_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private Date createAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = new Date();
+    }
 }

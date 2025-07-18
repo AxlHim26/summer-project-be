@@ -1,9 +1,10 @@
 package com.jobhunter.jobhunter_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
 @Table(name = "activity_log")
@@ -15,16 +16,25 @@ import java.sql.Date;
 public class ActivityLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "recruiter_members_id")
-    private RecruiterMembers recruiterMembers;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recruiter_member_id")
+    @JsonBackReference
+    private RecruiterMember recruiterMember;
 
     @Column(name = "entity_type")
     private String entityType;
 
-    @Column(name = "create_at")
+    @Column(name = "entity_id")
+    private String entityId;
+
+    @Column(name = "createAt")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = new Date();
+    }
 }

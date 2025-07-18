@@ -31,9 +31,14 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne()
+    @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @OneToMany(mappedBy = "message")
-    private List<Message> messages;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Candidate candidate;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Recruiter recruiter;
+
 }
