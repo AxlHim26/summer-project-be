@@ -72,22 +72,11 @@ public class JwtService {
         }
     }
 
-    public boolean validateRefreshToken(String refreshToken) {
-        try {
-            return !isTokenExpired(refreshToken);
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("Refresh token invalid: {}", e.getMessage());
-            return false;
-        }
-    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public List<String> extractRoles(String token) {
-        return extractClaim(token, claims -> claims.get("roles", List.class));
-    }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
