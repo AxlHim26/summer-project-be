@@ -9,6 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PasswordEndcoderConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // độ mạnh vừa đẹp
+        return new BCryptPasswordEncoder(12);
     }
 }

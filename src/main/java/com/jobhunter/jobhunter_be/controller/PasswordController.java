@@ -1,7 +1,7 @@
 package com.jobhunter.jobhunter_be.controller;
 
 
-import com.jobhunter.jobhunter_be.dto.common.ApiResponseCus;
+import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import com.jobhunter.jobhunter_be.dto.request.ResetPasswordRequest;
 import com.jobhunter.jobhunter_be.exception.custom.InvalidResetPasswordTokenException;
 import com.jobhunter.jobhunter_be.service.impl.PasswordServiceImpl;
@@ -17,20 +17,20 @@ public class PasswordController {
     private final PasswordServiceImpl passwordService;
 
     @PostMapping("/forgot")
-    public ResponseEntity<ApiResponseCus<Void>> forgotPassword(@RequestParam String email) {
+    public ResponseEntity<RestResponse<Void>> forgotPassword(@RequestParam String email) {
         passwordService.requestPasswordReset(email);
 
         return ResponseEntity.ok(
-                ApiResponseCus.success("Reset link sent to email")
+                RestResponse.success("Reset link sent to email")
         );
     }
 
     @PostMapping("/reset")
-    public ResponseEntity<ApiResponseCus<Void>> resetPassword(@RequestBody ResetPasswordRequest request) throws InvalidResetPasswordTokenException {
+    public ResponseEntity<RestResponse<Void>> resetPassword(@RequestBody ResetPasswordRequest request) throws InvalidResetPasswordTokenException {
         passwordService.resetPassword(request.getToken(), request.getNewPassword());
 
         return ResponseEntity.ok(
-                ApiResponseCus.success("Password reset successfully")
+                RestResponse.success("Password reset successfully")
         );
     }
 }

@@ -2,13 +2,12 @@ package com.jobhunter.jobhunter_be.controller;
 
 
 
-import com.jobhunter.jobhunter_be.dto.common.ApiResponseCus;
+import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import com.jobhunter.jobhunter_be.dto.request.LoginRequest;
 import com.jobhunter.jobhunter_be.dto.request.RegisterRequest;
 import com.jobhunter.jobhunter_be.dto.response.AuthResponse;
 import com.jobhunter.jobhunter_be.exception.custom.*;
 import com.jobhunter.jobhunter_be.service.impl.AuthServiceImpl;
-import com.jobhunter.jobhunter_be.service.impl.EmailVerificationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,7 +37,7 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "Successfully create a user"),
             @ApiResponse(responseCode = "409", description = "This email is used for another account")
     })
-    public ResponseEntity<ApiResponseCus<Void>> register(
+    public ResponseEntity<RestResponse<Void>> register(
             @Parameter(description = "Register info - email & password", required = true)
             @RequestBody RegisterRequest request
     ) throws UsernameExistedException, RoleNotFoundException {
@@ -46,7 +45,7 @@ public class AuthController {
         authService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponseCus.success("User registered successfully")
+                RestResponse.success("User registered successfully")
         );
     }
 
@@ -61,7 +60,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "404", description = "Email not found")
     })
-    public ResponseEntity<ApiResponseCus<AuthResponse>> login(
+    public ResponseEntity<RestResponse<AuthResponse>> login(
             @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
@@ -77,7 +76,7 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponseCus.success(authResponse, "User logged in successfully")
+                RestResponse.success(authResponse, "User logged in successfully")
         );
     }
 
@@ -90,7 +89,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Refresh token not found in the database")
     })
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponseCus<Void>> logout(
+    public ResponseEntity<RestResponse<Void>> logout(
             @Parameter(
                     description = "Refresh token stored in the cookie",
                     required = true,
@@ -112,7 +111,7 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
         return ResponseEntity.ok(
-                ApiResponseCus.success("Logged out successfully")
+                RestResponse.success("Logged out successfully")
         );
     }
 
@@ -126,7 +125,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Refresh token not found"),
             @ApiResponse(responseCode = "401", description = "Refresh token has expired")
     })
-    public ResponseEntity<ApiResponseCus<AuthResponse>> refreshToken(
+    public ResponseEntity<RestResponse<AuthResponse>> refreshToken(
             @Parameter(
                     description = "Refresh token stored in cookie",
                     required = true,
@@ -137,7 +136,7 @@ public class AuthController {
         AuthResponse authResponse = authService.refreshToken(refreshToken);
 
         return ResponseEntity.ok(
-                ApiResponseCus.success(authResponse, "Token refreshed successfully")
+                RestResponse.success(authResponse, "Token refreshed successfully")
         );
     }
 }

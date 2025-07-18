@@ -3,6 +3,8 @@ package com.jobhunter.jobhunter_be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -28,4 +30,15 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToOne()
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Candidate candidate;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Recruiter recruiter;
+
 }

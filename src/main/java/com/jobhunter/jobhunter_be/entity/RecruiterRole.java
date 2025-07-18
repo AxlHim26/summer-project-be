@@ -1,29 +1,20 @@
 package com.jobhunter.jobhunter_be.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Set;
 
 @Entity
-@Table(name = "role")
+@Table(name = "recruiter_role")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role implements GrantedAuthority {
-
+@Builder
+public class RecruiterRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name")
     private String name;
-
-    @Override
-    public String getAuthority() {
-        return name;
-    }
 }

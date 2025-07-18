@@ -1,6 +1,6 @@
 package com.jobhunter.jobhunter_be.exception;
 
-import com.jobhunter.jobhunter_be.dto.common.ApiResponseCus;
+import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import com.jobhunter.jobhunter_be.exception.custom.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleUsernameNotFound(UsernameNotFoundException exception) {
+    public ResponseEntity<RestResponse<Void>> handleUsernameNotFound(UsernameNotFoundException exception) {
         log.warn("User not found: {}", exception.getMessage());
 
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.NOT_FOUND.value(),
                 "USER NOT FOUND",
                 exception.getMessage()
@@ -31,10 +31,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleBadCredentials(BadCredentialsException exception) {
+    public ResponseEntity<RestResponse<Void>> handleBadCredentials(BadCredentialsException exception) {
         log.warn("Bad credentials: {}", exception.getMessage());
 
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "INVALID USERNAME OR PASSWORD",
                 exception.getMessage()
@@ -44,9 +44,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleExpiredToken(ExpiredJwtException ex) {
+    public ResponseEntity<RestResponse<Void>> handleExpiredToken(ExpiredJwtException ex) {
         log.warn("Expired JWT: {}", ex.getMessage());
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "TOKEN HAS EXPIRED",
                 ex.getMessage()
@@ -56,10 +56,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleUnsupportedToken(UnsupportedJwtException ex) {
+    public ResponseEntity<RestResponse<Void>> handleUnsupportedToken(UnsupportedJwtException ex) {
         log.warn("Unsupported JWT: {}", ex.getMessage());
 
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "UNSUPPORTED TOKEN",
                 ex.getMessage()
@@ -69,10 +69,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleMalformedToken(MalformedJwtException ex) {
+    public ResponseEntity<RestResponse<Void>> handleMalformedToken(MalformedJwtException ex) {
         log.warn("Malformed JWT: {}", ex.getMessage());
 
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "MALFORMED TOKEN",
                 ex.getMessage()
@@ -82,10 +82,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<RestResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
 
-        ApiResponseCus<Void> response = ApiResponseCus.error(
+        RestResponse<Void> response = RestResponse.error(
                 HttpStatus.FORBIDDEN.value(),
                 "ACCESS DENIED",
                 ex.getMessage()
@@ -95,10 +95,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleRoleNotExistException(RoleNotFoundException e) {
+    public ResponseEntity<RestResponse<Void>> handleRoleNotExistException(RoleNotFoundException e) {
         log.error("Role not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ApiResponseCus.error(
+                RestResponse.error(
                         HttpStatus.NOT_FOUND.value(),
                         "ROLE NOT FOUND",
                         e.getMessage()
@@ -107,11 +107,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameExistedException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleUserAlreadyExistedException(UsernameExistedException e) {
+    public ResponseEntity<RestResponse<Void>> handleUserAlreadyExistedException(UsernameExistedException e) {
         log.warn("Username already existed: {}", e.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                ApiResponseCus.error(
+                RestResponse.error(
                         HttpStatus.CONFLICT.value(),
                         "USERNAME ALREADY EXISTED",
                         e.getMessage()
@@ -120,10 +120,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredRefreshTokenException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleExpiredRefreshToken(ExpiredRefreshTokenException e) {
+    public ResponseEntity<RestResponse<Void>> handleExpiredRefreshToken(ExpiredRefreshTokenException e) {
         log.warn("Expired refreshtoken: {}", e.getMessage());
 
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "EXPIRED REFRESHTOKEN",
                 e.getMessage()
@@ -133,10 +133,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRefreshTokenException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleInvalidRefreshToken(InvalidRefreshTokenException e) {
+    public ResponseEntity<RestResponse<Void>> handleInvalidRefreshToken(InvalidRefreshTokenException e) {
         log.warn("Invalid refreshtoken: {}", e);
 
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.UNAUTHORIZED.value(),
                 "INVALID REFRESHTOKEN: {}",
                 e.getMessage()
@@ -146,10 +146,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidResetPasswordTokenException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleInvalidResetPasswordToken(InvalidResetPasswordTokenException e) {
+    public ResponseEntity<RestResponse<Void>> handleInvalidResetPasswordToken(InvalidResetPasswordTokenException e) {
         log.warn("Invalid resetpassword token: {}", e.getMessage());
 
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.BAD_REQUEST.value(),
                 "INVALID RESETPASSWORD TOKEN",
                 e.getMessage()
@@ -159,10 +159,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleRefreshTokenNotFoundException(RefreshTokenNotFoundException e) {
+    public ResponseEntity<RestResponse<Void>> handleRefreshTokenNotFoundException(RefreshTokenNotFoundException e) {
         log.warn("Refresh Token Not Found: {}", e.getMessage());
 
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.NOT_FOUND.value(),
                 "The provided refresh token does not exist",
                 e.getMessage()
@@ -172,10 +172,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(VeryficationTokenNotFoundException.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleVeryficationTokenNotFound(VeryficationTokenNotFoundException e) {
+    public ResponseEntity<RestResponse<Void>> handleVeryficationTokenNotFound(VeryficationTokenNotFoundException e) {
         log.warn("Veryficationtoken not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ApiResponseCus.error(
+                RestResponse.error(
                         HttpStatus.NOT_FOUND.value(),
                         "Veryfication not found",
                         e.getMessage()
@@ -184,10 +184,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredVeryficationToken.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleExpiredVeryficationToken(ExpiredRefreshTokenException e) {
+    public ResponseEntity<RestResponse<Void>> handleExpiredVeryficationToken(ExpiredRefreshTokenException e) {
         log.warn("Expired veryfication token: {}", e.getMessage());
 
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.BAD_REQUEST.value(),
                 "Veryfication not found",
                 e.getMessage()
@@ -196,9 +196,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponseCus<Void>> handleGeneralException(Exception exception) {
+    public ResponseEntity<RestResponse<Void>> handleGeneralException(Exception exception) {
         log.error(exception.getMessage(), exception);
-        ApiResponseCus<Void> apiResponse = ApiResponseCus.error(
+        RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "An error occurred",
                 exception.getMessage()

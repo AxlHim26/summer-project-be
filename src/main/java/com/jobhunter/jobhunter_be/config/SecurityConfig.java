@@ -26,7 +26,6 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final PasswordEndcoderConfig passwordEndcoderConfig;
-    private final CorsConfig  corsConfig;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -54,7 +53,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                        .requestMatchers("/api/candidate/**").hasAnyRole("CANDIDATE")
+                        .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().denyAll()
                 )
