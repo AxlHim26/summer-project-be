@@ -28,7 +28,7 @@ public class StageInitializer {
         for (String progress : defaultStages) {
             boolean exists = stageRepository.existsByProgress(progress);
             if (!exists) {
-                stageRepository.save(new Stage(0, progress));
+                stageRepository.save(new Stage(null, progress));
                 log.info("Created stage: {}", progress);
             } else {
                 log.info("Stage already exists: {}", progress);
