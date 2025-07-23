@@ -3,6 +3,7 @@ package com.jobhunter.jobhunter_be.service.impl;
 import com.jobhunter.jobhunter_be.dto.request.LoginRequest;
 import com.jobhunter.jobhunter_be.dto.request.RegisterRequest;
 import com.jobhunter.jobhunter_be.dto.response.AuthResponse;
+import com.jobhunter.jobhunter_be.dto.response.UserResponse;
 import com.jobhunter.jobhunter_be.entity.RefreshToken;
 import com.jobhunter.jobhunter_be.entity.Role;
 import com.jobhunter.jobhunter_be.entity.User;
@@ -60,7 +61,7 @@ public class AuthServiceImpl implements IAuthService {
 
     @Transactional
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponse<UserResponse> login(LoginRequest request) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -90,11 +91,17 @@ public class AuthServiceImpl implements IAuthService {
             log.error("Failed to save refresh token for user {}", user.getEmail(), e);
             throw new RuntimeException("Failed to issue refresh token. Please try again later.");
         }
+        String avatar = user.getProfile() != null && user.getProfile().getAvatar() != null && !user.getProfile().getAvatar().isBlank()
+                ? user.getProfile().getAvatar()
+                : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
 
-        return AuthResponse.builder()
-                .email(user.getEmail())
-                .fullName(user.getName())
-                .role(user.getRole())
+        return AuthResponse.<UserResponse>builder()
+                .data(UserResponse.builder()
+                        .fullname(user.getName())
+                        .avatar(avatar)
+                        .email(user.getEmail())
+                        .role(user.getRole())
+                        .build())
                 .token(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -109,7 +116,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public AuthResponse refreshToken(String refreshToken) throws RefreshTokenNotFoundException, ExpiredRefreshTokenException {
+    public AuthResponse<Object> refreshToken(String refreshToken) throws RefreshTokenNotFoundException, ExpiredRefreshTokenException {
         RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
 
@@ -122,11 +129,26 @@ public class AuthServiceImpl implements IAuthService {
         String newAccessToken = jwtService.generateAccessToken(userDetails);
 
         return AuthResponse.builder()
-                .email(user.getEmail())
-                .fullName(user.getName())
-                .role(user.getRole())
+                .data(null)
                 .token(newAccessToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public UserResponse currentUser(String email) throws NotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        String avatar = user.getProfile() != null && user.getProfile().getAvatar() != null && !user.getProfile().getAvatar().isBlank()
+                ? user.getProfile().getAvatar()
+                : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
+
+        return UserResponse.builder()
+                .fullname(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .avatar(avatar)
                 .build();
     }
 }

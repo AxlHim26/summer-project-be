@@ -6,6 +6,7 @@ import com.jobhunter.jobhunter_be.dto.common.RestResponse;
 import com.jobhunter.jobhunter_be.dto.request.LoginRequest;
 import com.jobhunter.jobhunter_be.dto.request.RegisterRequest;
 import com.jobhunter.jobhunter_be.dto.response.AuthResponse;
+import com.jobhunter.jobhunter_be.dto.response.UserResponse;
 import com.jobhunter.jobhunter_be.exception.custom.*;
 import com.jobhunter.jobhunter_be.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -30,6 +32,7 @@ import java.time.Duration;
 public class AuthController {
 
     private final AuthServiceImpl authService;
+
 
     @PostMapping("/register")
     @Operation(summary = "Register by email & password", description = "Create a user base on email & password")
@@ -60,11 +63,11 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "404", description = "Email not found")
     })
-    public ResponseEntity<RestResponse<AuthResponse>> login(
+    public ResponseEntity<RestResponse<AuthResponse<UserResponse>>> login(
             @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
-        AuthResponse authResponse = authService.login(request);
+        AuthResponse<UserResponse> authResponse = authService.login(request);
         ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", authResponse.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
@@ -125,7 +128,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Refresh token not found"),
             @ApiResponse(responseCode = "401", description = "Refresh token has expired")
     })
-    public ResponseEntity<RestResponse<AuthResponse>> refreshToken(
+    public ResponseEntity<RestResponse<AuthResponse<Object>>> refreshToken(
             @Parameter(
                     description = "Refresh token stored in cookie",
                     required = true,
@@ -133,10 +136,20 @@ public class AuthController {
             )
             @CookieValue("refresh_token") String refreshToken
     ) throws RefreshTokenNotFoundException, ExpiredRefreshTokenException {
-        AuthResponse authResponse = authService.refreshToken(refreshToken);
+        AuthResponse<Object> authResponse = authService.refreshToken(refreshToken);
 
         return ResponseEntity.ok(
                 RestResponse.success(authResponse, "Token refreshed successfully")
         );
     }
+
+    @GetMapping("/me")
+    private ResponseEntity<RestResponse<UserResponse>> getCurrentUser(Authentication authentication) throws NotFoundException {
+        String email = authentication.getName();
+        return ResponseEntity.status(HttpStatus.OK).body(RestResponse.success(
+                authService.currentUser(email),
+                "Get User successfully"
+        ));
+    }
+
 }

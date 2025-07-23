@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
@@ -55,7 +56,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/candidate/**").hasAnyRole("CANDIDATE")
                         .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER")
-                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
