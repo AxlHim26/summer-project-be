@@ -1,5 +1,6 @@
 package com.jobhunter.jobhunter_be.dto.response;
 
+import com.jobhunter.jobhunter_be.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponse {
-    private String username;
-    private Set<String> roles;
-    private Long id;
+    private String fullname;
+    private String email;
+    private Role role;
+    private String avatar;
 }
