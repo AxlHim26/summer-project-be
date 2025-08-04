@@ -145,6 +145,7 @@ public class AuthServiceImpl implements IAuthService {
                 : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
 
         return UserResponse.builder()
+                .id(user.getId())
                 .fullname(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())

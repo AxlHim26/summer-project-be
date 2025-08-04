@@ -30,6 +30,9 @@ public class Message {
     @Column(name = "content",  nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "file_url", columnDefinition = "TEXT")
+    private String fileUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id")
     @JsonBackReference
@@ -39,6 +42,4 @@ public class Message {
     protected void onCreate() {
         this.createAt = new Date();
     }
-
-
 }
