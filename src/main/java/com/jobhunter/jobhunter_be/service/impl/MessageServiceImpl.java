@@ -11,9 +11,14 @@ import com.jobhunter.jobhunter_be.repository.UserRepository;
 import com.jobhunter.jobhunter_be.service.IMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,23 +29,27 @@ public class MessageServiceImpl implements IMessageService {
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
 
-    public List<MessageResponse> getMessagesByConversation(Long conversationId) {
-        List<Message> messages = messageRepository.findByConversationId(conversationId);
+    public List<MessageResponse> getMessagesByConversation(Long conversationId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        List<MessageResponse> messages = messageRepository.findByConversationId(conversationId, pageable)
+                .getContent().stream()
+                .map(msg -> MessageResponse.builder()
+                        .id(msg.getId())
+                        .content(msg.getContent())
+                        .fileUrl(msg.getFileUrl())
+                        .createAt(msg.getCreateAt())
+                        .senderEmail(msg.getUser().getEmail())
+                        .build())
+                .collect(Collectors.toList());
 
-        return messages.stream().map(msg -> MessageResponse.builder()
-                .id(msg.getId())
-                .content(msg.getContent())
-                .fileUrl(msg.getFileUrl())
-                .createAt(msg.getCreateAt())
-                .senderId(msg.getUser().getId())
-                .build()
-        ).toList();
+        Collections.reverse(messages);
+        return messages;
     }
     @Override
-    public Message saveMessage(Long conversationId, Long senderId, String content, String fileUrl) {
+    public Message saveMessage(Long conversationId, String senderEmail, String content, String fileUrl) {
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
-        User sender = userRepository.findById(senderId)
+        User sender = userRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Message message = Message.builder()
@@ -67,7 +76,7 @@ public class MessageServiceImpl implements IMessageService {
 
         return MessageResponse.builder()
                 .id(updated.getId())
-                .senderId(updated.getUser().getId())
+                .senderEmail(updated.getUser().getEmail())
                 .content(updated.getContent())
                 .createAt(updated.getCreateAt())
                 .build();

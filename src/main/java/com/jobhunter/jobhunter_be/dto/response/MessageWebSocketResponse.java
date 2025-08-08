@@ -3,6 +3,8 @@ package com.jobhunter.jobhunter_be.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,9 +13,9 @@ import lombok.*;
 public class MessageWebSocketResponse {
     private Long id;
     private Long conversationId;
-    private int senderId;
     private String senderName;
+    private String senderEmail;
     private String content;
     private String fileUrl;
-    private String createAt;
+    private LocalDateTime createAt;
 }

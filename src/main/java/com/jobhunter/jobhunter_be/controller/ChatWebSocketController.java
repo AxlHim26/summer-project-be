@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import static com.jobhunter.jobhunter_be.util.DateTimeUtil.nowAsIso;
+import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,15 +21,15 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.sendMessage/{conversationId}")
     public void sendMessage(@DestinationVariable Long conversationId, SendMessageRequest request) {
-        Message saved = messageService.saveMessage(conversationId, request.getSenderId(), request.getContent(), request.getFileUrl());
+        Message saved = messageService.saveMessage(conversationId, request.getSenderEmail(), request.getContent(), request.getFileUrl());
         MessageWebSocketResponse response = MessageWebSocketResponse.builder()
                 .id(saved.getId())
                 .conversationId(saved.getConversation().getId())
-                .senderId(saved.getUser().getId())
                 .senderName(saved.getUser().getName())
+                .senderEmail(saved.getUser().getEmail())
                 .content(saved.getContent())
                 .fileUrl(saved.getFileUrl())
-                .createAt(nowAsIso())
+                .createAt(LocalDateTime.now())
                 .build();
         messagingTemplate.convertAndSend("/topic/conversation/" + conversationId, response);
     }

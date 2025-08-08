@@ -16,7 +16,12 @@ public class MessageController {
     private final MessageServiceImpl messageService;
 
     @GetMapping("/conversation/{conversationId}")
-    public ResponseEntity<RestResponse<List<MessageResponse>>> getMessagesByConversation(@PathVariable Long conversationId) {
-        return ResponseEntity.ok(RestResponse.success(messageService.getMessagesByConversation(conversationId),"Get Messages By Conversation Successfully"));
+    public ResponseEntity<RestResponse<List<MessageResponse>>> getMessagesByConversation(
+            @PathVariable Long conversationId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(RestResponse.success(
+                messageService.getMessagesByConversation(conversationId,page,size),
+                "Get Messages By Conversation Successfully"));
     }
 }

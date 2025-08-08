@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class SendMessageRequest {
     private Long conversationId;
-    private Long senderId;
+    private String senderEmail;
     private String content;
     private String fileUrl;
 }

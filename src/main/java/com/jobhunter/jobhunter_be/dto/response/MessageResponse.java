@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class MessageResponse {
     private Long id;
-    private Integer senderId;
+    private String senderEmail;
     private String content;
     private String fileUrl;
     private Date createAt;

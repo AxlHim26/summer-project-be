@@ -10,5 +10,5 @@ import java.util.List;
 public interface IConversationService {
     ConversationDetailResponse createConversation(ConversationRequest request) throws NotFoundException;
     ConversationDetailResponse getConversationById(Long id) throws NotFoundException;
-    List<ConversationListResponse> getAllConversationsByUserId(Long Id) throws NotFoundException;
+    List<ConversationListResponse> getAllConversationsByEmail(String email) throws NotFoundException;
 }

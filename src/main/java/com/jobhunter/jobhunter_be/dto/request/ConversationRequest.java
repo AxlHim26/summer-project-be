@@ -10,5 +10,5 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ConversationRequest {
-    private List<Long> participantIds;
+    private List<String> participantEmails;
 }

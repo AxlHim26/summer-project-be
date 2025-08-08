@@ -48,11 +48,11 @@ public class ConversationController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping
-    public ResponseEntity<RestResponse<List<ConversationListResponse>>> getAllConversationsByUserId(
-            @RequestParam Long userId
+    public ResponseEntity<RestResponse<List<ConversationListResponse>>> getAllConversationsByUserEmail(
+            @RequestParam String email
     ) throws NotFoundException {
         return ResponseEntity.ok(RestResponse.success(
-                conversationService.getAllConversationsByUserId(userId),
+                conversationService.getAllConversationsByEmail(email),
                 "Get conversation by userId successfully"
         ));
     }
