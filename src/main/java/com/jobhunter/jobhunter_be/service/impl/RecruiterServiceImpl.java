@@ -6,100 +6,76 @@ import com.jobhunter.jobhunter_be.entity.Profile;
 import com.jobhunter.jobhunter_be.entity.Recruiter;
 import com.jobhunter.jobhunter_be.entity.User;
 import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
-import com.jobhunter.jobhunter_be.repository.RecruiterRepository;
 import com.jobhunter.jobhunter_be.repository.UserRepository;
-import com.jobhunter.jobhunter_be.security.CustomUserDetails;
 import com.jobhunter.jobhunter_be.service.IRecruiterService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class RecruiterServiceImpl implements IRecruiterService {
-    private final RecruiterRepository recruiterRepository;
     private final UserRepository userRepository;
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public RecruiterResponse getRecruiter(String email) throws NotFoundException {
-        User user = userRepository.findByEmail(email) .orElseThrow(() -> new NotFoundException("User not found"));
-        Recruiter recruiter = user.getRecruiter();
-        if (recruiter == null) {
-            recruiter = new Recruiter();
-            recruiter.setUser(user);
-            user.setRecruiter(recruiter);
-            userRepository.save(user);
-        }
+        User user = userRepository.findUserWithRecruiterAndProfile(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if(user.getProfile() == null){
-            user.setProfile(new Profile());
-            userRepository.save(user);
-        }
+        Recruiter recruiter = user.getRecruiter();
+        Profile profile = user.getProfile();
 
         return RecruiterResponse.builder()
                 .name(user.getName())
-                .location(List.of(recruiter.getLocation() != null ? recruiter.getLocation().split(",") : new String[]{}))
+                .avatar(profile.getAvatar())
+                .location(recruiter.getLocation() != null
+                        ? List.of(recruiter.getLocation().split(","))
+                        : Collections.emptyList())
                 .employee(recruiter.getEmployee())
                 .industry(recruiter.getIndustry())
-                .techStack(List.of(recruiter.getTechStack() != null ? recruiter.getTechStack().split(",") : new String[]{}))
-                .foundedDate(recruiter.getFoundedDate() != null
-                        ? dateFormat.format(recruiter.getFoundedDate())
-                        : null)
-                .description(user.getProfile().getAbout())
+                .techStack(recruiter.getTechStack() != null
+                        ? List.of(recruiter.getTechStack().split(","))
+                        : Collections.emptyList())
+                .foundedDate(recruiter.getFoundedDate())
+                .description(profile.getAbout())
                 .build();
     }
 
     @Override
     public RecruiterResponse updateRecruiter(RecruiterRequest request, String email) throws NotFoundException {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
-        Recruiter recruiter = user.getRecruiter();
-        if (recruiter == null) {
-            recruiter = new Recruiter();
-            recruiter.setUser(user);
-            user.setRecruiter(recruiter);
-        }
+        User user = userRepository.findUserWithRecruiterAndProfile(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (user.getProfile() == null) {
-            user.setProfile(new Profile());
-        }
+        Recruiter recruiter = user.getRecruiter();
+        Profile profile = user.getProfile();
 
         user.setName(request.getName());
-        recruiter.setLocation(String.join(",", request.getLocation()));
+        profile.setAbout(request.getDescription());
+        profile.setAvatar(request.getAvatar());
+        recruiter.setLocation(request.getLocation() != null ? String.join(",", request.getLocation()) : null);
+        recruiter.setTechStack(request.getTechStack() != null ? String.join(",", request.getTechStack()) : null);
         recruiter.setEmployee(request.getEmployee());
         recruiter.setIndustry(request.getIndustry());
-        recruiter.setTechStack(String.join(",", request.getTechStack()));
-        user.getProfile().setAbout(request.getDescription());
+        recruiter.setFoundedDate(request.getFoundedDate());
 
-
-        try {
-            if (request.getFoundedDate() != null) {
-                Date parsedDate = dateFormat.parse(request.getFoundedDate());
-                recruiter.setFoundedDate(parsedDate);
-            }
-        } catch (ParseException e) {
-            throw new RuntimeException("Invalid foundedDate format, expected yyyy-MM-dd", e);
-        }
-
-        recruiterRepository.save(recruiter);
+        userRepository.save(user);
 
         return RecruiterResponse.builder()
+                .avatar(profile.getAvatar())
                 .name(user.getName())
-                .location(List.of(recruiter.getLocation() != null ? recruiter.getLocation().split(",") : new String[]{}))
+                .location(recruiter.getLocation() != null
+                        ? List.of(recruiter.getLocation().split(","))
+                        : Collections.emptyList())
                 .employee(recruiter.getEmployee())
                 .industry(recruiter.getIndustry())
-                .techStack(List.of(recruiter.getTechStack() != null ? recruiter.getTechStack().split(",") : new String[]{}))
-                .foundedDate(recruiter.getFoundedDate() != null
-                        ? dateFormat.format(recruiter.getFoundedDate())
-                        : null)
+                .techStack(recruiter.getTechStack() != null
+                        ? List.of(recruiter.getTechStack().split(","))
+                        : Collections.emptyList())
+                .foundedDate(recruiter.getFoundedDate())
                 .description(user.getProfile().getAbout())
                 .build();
     }

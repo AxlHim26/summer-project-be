@@ -7,6 +7,7 @@ import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
 import com.jobhunter.jobhunter_be.service.impl.RecruiterServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +18,14 @@ public class RecruiterController {
 
     private final RecruiterServiceImpl recruiterService;
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @GetMapping("/setting")
     public ResponseEntity<RestResponse<RecruiterResponse>> getRecruiter(Authentication authentication) throws NotFoundException {
         RecruiterResponse response = recruiterService.getRecruiter(authentication.getName());
         return ResponseEntity.ok(RestResponse.success(response, "Recruiter fetched successfully"));
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("/setting")
     public ResponseEntity<RestResponse<RecruiterResponse>> updateRecruiter(@RequestBody RecruiterRequest request, Authentication authentication) throws NotFoundException {
         RecruiterResponse response = recruiterService.updateRecruiter(request, authentication.getName());

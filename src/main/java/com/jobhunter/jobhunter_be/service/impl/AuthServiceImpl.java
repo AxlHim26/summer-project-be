@@ -4,9 +4,7 @@ import com.jobhunter.jobhunter_be.dto.request.LoginRequest;
 import com.jobhunter.jobhunter_be.dto.request.RegisterRequest;
 import com.jobhunter.jobhunter_be.dto.response.AuthResponse;
 import com.jobhunter.jobhunter_be.dto.response.UserResponse;
-import com.jobhunter.jobhunter_be.entity.RefreshToken;
-import com.jobhunter.jobhunter_be.entity.Role;
-import com.jobhunter.jobhunter_be.entity.User;
+import com.jobhunter.jobhunter_be.entity.*;
 import com.jobhunter.jobhunter_be.exception.custom.*;
 import com.jobhunter.jobhunter_be.repository.RefreshTokenRepository;
 import com.jobhunter.jobhunter_be.repository.RoleRepository;
@@ -49,12 +47,32 @@ public class AuthServiceImpl implements IAuthService {
         Role role = roleRepository.findByName("ROLE_" + request.getRole().toUpperCase())
                 .orElseThrow(() -> new RoleNotFoundException("Role not found"));
 
+        SocialLink socialLink = new SocialLink();
+        socialLink.setFacebookLink(null);
+        socialLink.setTwitterLink(null);
+        socialLink.setLinkedinLink(null);
+
+        Profile profile = new Profile();
+        profile.setAvatar("https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp");
+        profile.setSocialLink(socialLink);
+
         User user = User.builder()
                 .name(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .profile(profile)
                 .role(role)
                 .build();
+
+        if ("CANDIDATE".equalsIgnoreCase(request.getRole())) {
+            Candidate candidate = new Candidate();
+            candidate.setUser(user);
+            user.setCandidate(candidate);
+        } else if ("RECRUITER".equalsIgnoreCase(request.getRole())) {
+            Recruiter recruiter = new Recruiter();
+            recruiter.setUser(user);
+            user.setRecruiter(recruiter);
+        }
 
         userRepository.save(user);
     }
@@ -91,14 +109,11 @@ public class AuthServiceImpl implements IAuthService {
             log.error("Failed to save refresh token for user {}", user.getEmail(), e);
             throw new RuntimeException("Failed to issue refresh token. Please try again later.");
         }
-        String avatar = user.getProfile() != null && user.getProfile().getAvatar() != null && !user.getProfile().getAvatar().isBlank()
-                ? user.getProfile().getAvatar()
-                : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
 
         return AuthResponse.<UserResponse>builder()
                 .data(UserResponse.builder()
                         .fullname(user.getName())
-                        .avatar(avatar)
+                        .avatar(user.getProfile().getAvatar())
                         .email(user.getEmail())
                         .role(user.getRole())
                         .build())
@@ -140,15 +155,12 @@ public class AuthServiceImpl implements IAuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        String avatar = user.getProfile() != null && user.getProfile().getAvatar() != null && !user.getProfile().getAvatar().isBlank()
-                ? user.getProfile().getAvatar()
-                : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
 
         return UserResponse.builder()
                 .fullname(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .avatar(avatar)
+                .avatar(user.getProfile().getAvatar())
                 .build();
     }
 }
