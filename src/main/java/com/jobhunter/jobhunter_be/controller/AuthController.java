@@ -70,10 +70,10 @@ public class AuthController {
         AuthResponse<UserResponse> authResponse = authService.login(request);
         ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", authResponse.getRefreshToken())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
