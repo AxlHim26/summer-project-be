@@ -11,9 +11,8 @@ import java.util.Optional;
 @Repository
 public interface SocialLinkRepository extends JpaRepository<SocialLink, Integer> {
     @Query("""
-                SELECT p.socialLink
-                FROM Profile p
-                JOIN p.user u
+                SELECT u.profile.socialLink
+                FROM User u
                 WHERE u.email = :email
             """)
     Optional<SocialLink> findSocialLinkByUserEmail(@Param("email") String email);
