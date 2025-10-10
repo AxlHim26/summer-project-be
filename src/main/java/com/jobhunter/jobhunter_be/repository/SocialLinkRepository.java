@@ -11,9 +11,8 @@ import java.util.Optional;
 @Repository
 public interface SocialLinkRepository extends JpaRepository<SocialLink, Integer> {
     @Query("""
-                SELECT s
-                FROM SocialLink s
-                JOIN s.profile p
+                SELECT p.socialLink
+                FROM Profile p
                 JOIN p.user u
                 WHERE u.email = :email
             """)
