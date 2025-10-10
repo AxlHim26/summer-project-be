@@ -97,7 +97,7 @@ public class AuthServiceImpl implements IAuthService {
 
         return AuthResponse.<UserResponse>builder()
                 .data(UserResponse.builder()
-                        .fullname(user.getName())
+                        .fullName(user.getName())
                         .avatar(avatar)
                         .email(user.getEmail())
                         .role(user.getRole())
@@ -145,7 +145,7 @@ public class AuthServiceImpl implements IAuthService {
                 : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp";
 
         return UserResponse.builder()
-                .fullname(user.getName())
+                .fullName(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .avatar(avatar)
