@@ -22,6 +22,9 @@ public class Recruiter {
     @Column(name = "founded_date", columnDefinition = "DATE")
     private Date foundedDate;
 
+    @Column(name = "employee")
+    private String employee;
+
     @Column(name = "location")
     private String location;
 
@@ -40,7 +43,7 @@ public class Recruiter {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "recruiter",  fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "recruiter", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Job> jobs;
 }
