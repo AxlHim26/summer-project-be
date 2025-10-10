@@ -29,7 +29,7 @@ public class Profile {
     @Column(name = "phone")
     private String phone;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "social_link_id")
     private SocialLink socialLink;
 }
