@@ -18,3 +18,4 @@ public class JobApplicationResponse {
     private String status;
     private String appliedAt;
 }
+

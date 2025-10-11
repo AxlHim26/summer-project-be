@@ -22,3 +22,4 @@ public class CandidateResponse {
     private String education;
     private List<String> skills;
 }
+

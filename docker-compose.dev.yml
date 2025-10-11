@@ -11,6 +11,8 @@ services:
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
+    environment:
+      - DB_HOST=db
     depends_on:
       - db
     networks:

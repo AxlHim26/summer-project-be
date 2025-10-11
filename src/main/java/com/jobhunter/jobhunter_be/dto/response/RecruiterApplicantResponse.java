@@ -27,3 +27,4 @@ public class RecruiterApplicantResponse {
     private String portfolioLink;
     private String about;
 }
+

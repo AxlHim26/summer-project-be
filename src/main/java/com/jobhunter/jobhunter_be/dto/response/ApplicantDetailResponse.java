@@ -32,3 +32,4 @@ public class ApplicantDetailResponse {
     private String address;
     private String avatar;
 }
+

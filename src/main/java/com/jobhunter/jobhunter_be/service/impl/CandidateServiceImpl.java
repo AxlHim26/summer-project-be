@@ -125,3 +125,4 @@ public class CandidateServiceImpl implements ICandidateService {
                 .build();
     }
 }
+

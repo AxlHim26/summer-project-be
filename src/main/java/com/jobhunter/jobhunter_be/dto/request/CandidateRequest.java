@@ -43,3 +43,4 @@ public class CandidateRequest {
 
     private List<String> skills;
 }
+

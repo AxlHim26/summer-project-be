@@ -39,3 +39,4 @@ public class JobApplicationRequest {
     @NotBlank(message = "Resume is required")
     private String resume; // Base64 encoded file or file path
 }
+

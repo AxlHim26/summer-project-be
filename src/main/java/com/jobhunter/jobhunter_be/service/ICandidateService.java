@@ -8,3 +8,4 @@ public interface ICandidateService {
     CandidateResponse getCandidate(String email) throws NotFoundException;
     CandidateResponse updateCandidate(CandidateRequest request, String email) throws NotFoundException;
 }
+

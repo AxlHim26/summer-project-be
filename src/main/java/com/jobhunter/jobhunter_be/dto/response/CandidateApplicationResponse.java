@@ -21,3 +21,4 @@ public class CandidateApplicationResponse {
     private String salary;
     private String category;
 }
+

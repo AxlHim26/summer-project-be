@@ -16,18 +16,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow production domain
+        // Only allow production domain
         config.addAllowedOriginPattern("https://summer-project-fe.vercel.app");
-        config.addAllowedOriginPattern("https://summer-project-fe.vercel.app/*");
-        
-        // Allow localhost for development
-        config.addAllowedOriginPattern("http://localhost:3000");
-        config.addAllowedOriginPattern("http://localhost:3001");
-        config.addAllowedOriginPattern("http://localhost:3002");
-        config.addAllowedOriginPattern("http://localhost:5173");
-        config.addAllowedOriginPattern("http://127.0.0.1:3000");
-        config.addAllowedOriginPattern("http://127.0.0.1:3001");
-        config.addAllowedOriginPattern("http://127.0.0.1:3002");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -39,3 +39,4 @@ public class CandidateController {
         return ResponseEntity.ok(RestResponse.success(response, "Candidate profile fetched successfully"));
     }
 }
+
