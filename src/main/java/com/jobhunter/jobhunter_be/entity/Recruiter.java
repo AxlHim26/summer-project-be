@@ -34,6 +34,9 @@ public class Recruiter {
     @Column(name = "tech_stack")
     private String techStack;
 
+    @Column(name = "website")
+    private String website;
+
     @Column(name = "benefit")
     private String benefit;
 

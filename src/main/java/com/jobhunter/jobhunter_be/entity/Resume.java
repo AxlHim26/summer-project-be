@@ -30,6 +30,6 @@ public class Resume {
     @Column(name = "about", nullable = false, columnDefinition = "TEXT")
     private String about;
 
-    @Column(name = "cv")
+    @Column(name = "cv", columnDefinition = "TEXT")
     private String cv;
 }

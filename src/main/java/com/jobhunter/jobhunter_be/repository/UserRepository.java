@@ -9,12 +9,18 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u " +
             "LEFT JOIN FETCH u.recruiter r " +
             "LEFT JOIN FETCH u.profile p " +
             "WHERE u.email = :email")
     Optional<User> findUserWithRecruiterAndProfile(@Param("email") String email);
+
+    @Query("SELECT u FROM User u " +
+            "LEFT JOIN FETCH u.candidate c " +
+            "LEFT JOIN FETCH u.profile p " +
+            "WHERE u.email = :email")
+    Optional<User> findUserWithCandidateAndProfile(@Param("email") String email);
 
     Optional<User> findByEmail(String email);
 

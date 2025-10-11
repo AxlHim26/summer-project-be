@@ -31,4 +31,11 @@ public class RecruiterController {
         RecruiterResponse response = recruiterService.updateRecruiter(request, authentication.getName());
         return ResponseEntity.ok(RestResponse.success(response, "Recruiter information updated successfully"));
     }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    @GetMapping("/profile")
+    public ResponseEntity<RestResponse<RecruiterResponse>> getRecruiterProfile(Authentication authentication) throws NotFoundException {
+        RecruiterResponse response = recruiterService.getRecruiter(authentication.getName());
+        return ResponseEntity.ok(RestResponse.success(response, "Recruiter profile fetched successfully"));
+    }
 }

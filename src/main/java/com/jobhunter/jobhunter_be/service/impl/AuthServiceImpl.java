@@ -4,10 +4,13 @@ import com.jobhunter.jobhunter_be.dto.request.LoginRequest;
 import com.jobhunter.jobhunter_be.dto.request.RegisterRequest;
 import com.jobhunter.jobhunter_be.dto.response.AuthResponse;
 import com.jobhunter.jobhunter_be.dto.response.UserResponse;
+import com.jobhunter.jobhunter_be.entity.Profile;
+import com.jobhunter.jobhunter_be.entity.Recruiter;
 import com.jobhunter.jobhunter_be.entity.RefreshToken;
 import com.jobhunter.jobhunter_be.entity.Role;
 import com.jobhunter.jobhunter_be.entity.User;
 import com.jobhunter.jobhunter_be.exception.custom.*;
+import com.jobhunter.jobhunter_be.repository.RecruiterRepository;
 import com.jobhunter.jobhunter_be.repository.RefreshTokenRepository;
 import com.jobhunter.jobhunter_be.repository.RoleRepository;
 import com.jobhunter.jobhunter_be.repository.UserRepository;
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RecruiterRepository recruiterRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -49,14 +53,40 @@ public class AuthServiceImpl implements IAuthService {
         Role role = roleRepository.findByName("ROLE_" + request.getRole().toUpperCase())
                 .orElseThrow(() -> new RoleNotFoundException("Role not found"));
 
+        // Create Profile first
+        Profile profile = Profile.builder()
+                .avatar("")
+                .about("")
+                .address("")
+                .phone("")
+                .build();
+
+        // Create User with Profile
         User user = User.builder()
                 .name(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .profile(profile)
                 .build();
 
+        // Save user (this will also save profile due to cascade)
         userRepository.save(user);
+
+        // Create role-specific entities
+        if ("RECRUITER".equals(request.getRole().toUpperCase())) {
+            Recruiter recruiter = Recruiter.builder()
+                    .id(user.getId())
+                    .user(user)
+                    .website("")
+                    .location("")
+                    .employee("")
+                    .industry("")
+                    .techStack("")
+                    .benefit("")
+                    .build();
+            recruiterRepository.save(recruiter);
+        }
     }
 
     @Transactional
