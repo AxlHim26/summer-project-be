@@ -6,8 +6,10 @@ import com.jobhunter.jobhunter_be.dto.response.ConversationDetailResponse;
 import com.jobhunter.jobhunter_be.dto.response.ConversationListResponse;
 import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
 import com.jobhunter.jobhunter_be.service.impl.ConversationServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,10 +33,11 @@ public class ConversationController {
     })
     @PostMapping
     public ResponseEntity<RestResponse<ConversationDetailResponse>> createConversation(
-            @RequestBody ConversationRequest request
+            @Valid @RequestBody ConversationRequest request,
+            Authentication authentication
     ) throws NotFoundException {
         return ResponseEntity.ok(RestResponse.success(
-                conversationService.createConversation(request),
+                conversationService.createConversation(request, authentication.getName()),
                 "Create conversation successfully"
         ));
     }
@@ -49,8 +52,9 @@ public class ConversationController {
     })
     @GetMapping
     public ResponseEntity<RestResponse<List<ConversationListResponse>>> getAllConversationsByUserEmail(
-            @RequestParam String email
+            Authentication authentication
     ) throws NotFoundException {
+        String email = authentication.getName();
         return ResponseEntity.ok(RestResponse.success(
                 conversationService.getAllConversationsByEmail(email),
                 "Get conversation by userId successfully"

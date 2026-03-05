@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -111,14 +110,7 @@ public class JobServiceImpl implements IJobService {
 
     @Override
     public JobResponse[] getAllAvailableJobs() {
-        // Get all jobs that are not expired
-        List<Job> allJobs = jobRepository.findAll();
-        Date currentDate = new Date();
-        
-        List<Job> availableJobs = allJobs.stream()
-                .filter(job -> job.getExperiedDate().after(currentDate))
-                .sorted((a, b) -> b.getCreateAt().compareTo(a.getCreateAt())) // Sort by newest first
-                .collect(Collectors.toList());
+        List<Job> availableJobs = jobRepository.findByExperiedDateAfterOrderByCreateAtDesc(new Date());
 
         return availableJobs.stream()
                 .map(job -> JobResponse.builder()

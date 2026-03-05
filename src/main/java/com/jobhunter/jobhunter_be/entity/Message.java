@@ -7,7 +7,13 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "message")
+@Table(
+        name = "message",
+        indexes = {
+                @Index(name = "idx_message_conversation_created_at", columnList = "conversation_id,create_at"),
+                @Index(name = "idx_message_sender", columnList = "sender_id")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

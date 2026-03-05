@@ -72,6 +72,10 @@ public class CandidateServiceImpl implements ICandidateService {
         User user = userRepository.findUserWithCandidateAndProfile(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        if (!user.getEmail().equalsIgnoreCase(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
         Candidate candidate = user.getCandidate();
         Profile profile = user.getProfile();
 
@@ -125,4 +129,3 @@ public class CandidateServiceImpl implements ICandidateService {
                 .build();
     }
 }
-

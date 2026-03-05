@@ -5,6 +5,7 @@ import com.jobhunter.jobhunter_be.entity.Conversation;
 import com.jobhunter.jobhunter_be.entity.Message;
 import com.jobhunter.jobhunter_be.entity.User;
 import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
+import com.jobhunter.jobhunter_be.repository.ConversationParticipantRepository;
 import com.jobhunter.jobhunter_be.repository.ConversationRepository;
 import com.jobhunter.jobhunter_be.repository.MessageRepository;
 import com.jobhunter.jobhunter_be.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -28,10 +30,12 @@ public class MessageServiceImpl implements IMessageService {
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final ConversationParticipantRepository participantRepository;
 
-    public List<MessageResponse> getMessagesByConversation(Long conversationId, int page, int size) {
+    public List<MessageResponse> getMessagesByConversation(Long conversationId, int page, int size, String requesterEmail) {
+        verifyConversationAccess(conversationId, requesterEmail);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
-        List<MessageResponse> messages = messageRepository.findByConversationId(conversationId, pageable)
+        List<MessageResponse> messages = messageRepository.findByConversationIdWithUser(conversationId, pageable)
                 .getContent().stream()
                 .map(msg -> MessageResponse.builder()
                         .id(msg.getId())
@@ -45,12 +49,15 @@ public class MessageServiceImpl implements IMessageService {
         Collections.reverse(messages);
         return messages;
     }
+
     @Override
-    public Message saveMessage(Long conversationId, String senderEmail, String content, String fileUrl) {
+    public Message saveMessage(Long conversationId, String senderEmail, String content, String fileUrl) throws NotFoundException {
+        verifyConversationAccess(conversationId, senderEmail);
+
         Conversation conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+                .orElseThrow(() -> new NotFoundException("Conversation not found"));
         User sender = userRepository.findByEmail(senderEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Message message = Message.builder()
                 .conversation(conversation)
@@ -60,6 +67,12 @@ public class MessageServiceImpl implements IMessageService {
                 .build();
 
         return messageRepository.save(message);
+    }
+
+    private void verifyConversationAccess(Long conversationId, String userEmail) {
+        if (!participantRepository.existsByConversationIdAndUserEmail(conversationId, userEmail)) {
+            throw new AccessDeniedException("You do not have access to this conversation");
+        }
     }
 
     @Override

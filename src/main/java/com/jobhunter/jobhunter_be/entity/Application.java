@@ -8,7 +8,18 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "application")
+@Table(
+        name = "application",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_application_candidate_job", columnNames = {"candidate_id", "job_id"})
+        },
+        indexes = {
+                @Index(name = "idx_application_candidate", columnList = "candidate_id"),
+                @Index(name = "idx_application_job", columnList = "job_id"),
+                @Index(name = "idx_application_stage", columnList = "stage_id"),
+                @Index(name = "idx_application_created_at", columnList = "created_at")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

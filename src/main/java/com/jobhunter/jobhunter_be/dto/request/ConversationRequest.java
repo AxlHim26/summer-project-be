@@ -1,5 +1,8 @@
 package com.jobhunter.jobhunter_be.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -10,5 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ConversationRequest {
-    private List<String> participantEmails;
+    @NotNull(message = "Participants are required")
+    @Size(min = 2, max = 2, message = "Conversation must have exactly 2 participants")
+    private List<@Email(message = "Participant email should be valid") String> participantEmails;
 }

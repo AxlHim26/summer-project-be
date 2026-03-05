@@ -6,7 +6,14 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "job")
+@Table(
+        name = "job",
+        indexes = {
+                @Index(name = "idx_job_recruiter", columnList = "recruiter_id"),
+                @Index(name = "idx_job_expired_date", columnList = "experied_date"),
+                @Index(name = "idx_job_created_at", columnList = "create_at")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

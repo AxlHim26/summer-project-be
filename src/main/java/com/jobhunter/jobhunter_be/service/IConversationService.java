@@ -8,7 +8,7 @@ import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
 import java.util.List;
 
 public interface IConversationService {
-    ConversationDetailResponse createConversation(ConversationRequest request) throws NotFoundException;
+    ConversationDetailResponse createConversation(ConversationRequest request, String requesterEmail) throws NotFoundException;
     ConversationDetailResponse getConversationById(Long id) throws NotFoundException;
     List<ConversationListResponse> getAllConversationsByEmail(String email) throws NotFoundException;
 }

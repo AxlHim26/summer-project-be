@@ -206,7 +206,7 @@ public class JobApplicationServiceImpl implements IJobApplicationService {
 
         // Get application
         Long appId = Long.parseLong(applicationId);
-        Application application = applicationRepository.findById(appId)
+        Application application = applicationRepository.findDetailById(appId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
         // Verify this application belongs to recruiter's job

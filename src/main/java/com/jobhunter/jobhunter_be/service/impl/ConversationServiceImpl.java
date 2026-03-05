@@ -14,12 +14,15 @@ import com.jobhunter.jobhunter_be.repository.MessageRepository;
 import com.jobhunter.jobhunter_be.repository.UserRepository;
 import com.jobhunter.jobhunter_be.service.IConversationService;
 import lombok.RequiredArgsConstructor;
-
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -35,13 +38,21 @@ public class ConversationServiceImpl implements IConversationService {
     private final MessageRepository messageRepository;
 
 
-    @SneakyThrows
     @Override
-    public ConversationDetailResponse createConversation(ConversationRequest request) {
+    public ConversationDetailResponse createConversation(ConversationRequest request, String requesterEmail) throws NotFoundException {
         List<String> participantEmails = request.getParticipantEmails();
+        if (participantEmails == null || participantEmails.size() != 2) {
+            throw new IllegalArgumentException("Conversation must have exactly 2 participants");
+        }
+        if (!participantEmails.contains(requesterEmail)) {
+            throw new AccessDeniedException("You cannot create a conversation without yourself");
+        }
 
         String userA = participantEmails.get(0);
         String userB = participantEmails.get(1);
+        if (Objects.equals(userA, userB)) {
+            throw new IllegalArgumentException("Participants must be different users");
+        }
 
         Optional<Long> conversationId = conversationRepository.findConversationIdBtwUsers(userA, userB);
         if (conversationId.isPresent()) {
@@ -50,15 +61,10 @@ public class ConversationServiceImpl implements IConversationService {
 
         Conversation conversation = conversationRepository.save(Conversation.builder().build());
 
-        List<User> users = participantEmails.stream()
-                .map(email -> {
-                    try {
-                        return getUser(email);
-                    } catch (NotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+        List<User> users = new ArrayList<>(participantEmails.size());
+        for (String email : participantEmails) {
+            users.add(getUser(email));
+        }
 
         List<ConversationParticipant> participantsEntity = users.stream()
                 .map(user -> ConversationParticipant.builder()
@@ -107,30 +113,47 @@ public class ConversationServiceImpl implements IConversationService {
         }
 
         Set<Long> conversationsId = conversationRepository.findAllByUserEmail(email);
+        if (conversationsId.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Message> latestMessagesByConversationId = messageRepository
+                .findLatestMessagesByConversationIds(conversationsId)
+                .stream()
+                .collect(Collectors.toMap(
+                        message -> message.getConversation().getId(),
+                        message -> message,
+                        (first, second) -> first.getCreateAt().after(second.getCreateAt()) ? first : second
+                ));
+
+        Map<Long, User> partnerByConversationId = new HashMap<>();
+        for (ConversationParticipant participant : participantRepository.findByConversationIdsWithUserAndProfile(conversationsId)) {
+            User participantUser = participant.getUser();
+            if (!Objects.equals(participantUser.getEmail(), email)) {
+                partnerByConversationId.putIfAbsent(participant.getConversation().getId(), participantUser);
+            }
+        }
 
         return conversationsId.stream()
-                .map(conversationId -> mapToConversationListResponse(conversationId, email))
+                .map(conversationId -> {
+                    Message lastMessage = latestMessagesByConversationId.get(conversationId);
+                    User partner = partnerByConversationId.get(conversationId);
+
+                    return ConversationListResponse.builder()
+                            .id(conversationId)
+                            .lastMsg(lastMessage != null ? lastMessage.getContent() : "")
+                            .lastMsgTime(lastMessage != null ? lastMessage.getCreateAt() : null)
+                            .partnerName(partner != null ? partner.getName() : "Unknown")
+                            .partnerAvatar(partner != null && partner.getProfile() != null
+                                    ? partner.getProfile().getAvatar()
+                                    : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp")
+                            .build();
+                })
+                .sorted(Comparator.comparing(
+                        ConversationListResponse::getLastMsgTime,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
                 .toList();
-    }
-
-    private ConversationListResponse mapToConversationListResponse(Long conversationId, String email) {
-        Message lastMessage = messageRepository.findLastMsgByConversationId(conversationId);
-        List<User> participants = participantRepository.findParticipantsByConversationId(conversationId);
-
-        User partner = participants.stream()
-                .filter(u -> !Objects.equals(u.getEmail(), email))
-                .findFirst()
-                .orElse(null);
-
-        return ConversationListResponse.builder()
-                .id(conversationId)
-                .lastMsg(lastMessage != null ? lastMessage.getContent() : "")
-                .lastMsgTime(lastMessage != null ? lastMessage.getCreateAt() : null)
-                .partnerName(partner != null ? partner.getName() : "Unknown")
-                .partnerAvatar(partner != null && partner.getProfile() != null
-                        ? partner.getProfile().getAvatar()
-                        : "https://res.cloudinary.com/dhsv9jnul/image/upload/v1753185959/avatar-default_gvywqr.webp")
-                .build();
     }
 
     private User toMinimalUser(User user) {

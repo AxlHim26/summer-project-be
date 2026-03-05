@@ -15,7 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -32,6 +34,10 @@ import java.time.Duration;
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    @Value("${app.cookie.refresh.secure:true}")
+    private boolean refreshCookieSecure;
+    @Value("${app.cookie.refresh.same-site:None}")
+    private String refreshCookieSameSite;
 
 
     @PostMapping("/register")
@@ -42,7 +48,7 @@ public class AuthController {
     })
     public ResponseEntity<RestResponse<Void>> register(
             @Parameter(description = "Register info - email & password", required = true)
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request
     ) throws UsernameExistedException, RoleNotFoundException {
 
         authService.register(request);
@@ -64,16 +70,16 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Email not found")
     })
     public ResponseEntity<RestResponse<AuthResponse<UserResponse>>> login(
-            @RequestBody LoginRequest request,
+            @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
         AuthResponse<UserResponse> authResponse = authService.login(request);
         ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", authResponse.getRefreshToken())
                 .httpOnly(true)
-                .secure(true)
+                .secure(refreshCookieSecure)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("None")
+                .sameSite(refreshCookieSameSite)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -105,10 +111,10 @@ public class AuthController {
 
         ResponseCookie deleteCookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(refreshCookieSecure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite(refreshCookieSameSite)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());

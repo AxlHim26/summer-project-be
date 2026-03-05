@@ -7,10 +7,10 @@ import com.jobhunter.jobhunter_be.repository.PasswordResetTokenRepository;
 import com.jobhunter.jobhunter_be.repository.UserRepository;
 import com.jobhunter.jobhunter_be.service.IPasswordService;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +20,24 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PasswordServiceImpl implements IPasswordService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    @Value("${frontend.base-url:http://localhost:3000}")
+    private String frontendBaseUrl;
+    @Value("${frontend.reset-password-path:/reset-password}")
+    private String frontendResetPasswordPath;
 
     @Transactional
     public void requestPasswordReset(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            // Do not disclose account existence.
+            log.info("Password reset requested for non-existing email: {}", email);
+            return;
+        }
 
         String token = UUID.randomUUID().toString();
         Instant expiry = Instant.now().plus(15, ChronoUnit.MINUTES);
@@ -50,13 +58,14 @@ public class PasswordServiceImpl implements IPasswordService {
 
         passwordResetTokenRepository.save(resetToken);
 
-        String resetLink = "http://localhost:3000/api/password/reset?token=" + token;
+        String resetPath = frontendResetPasswordPath.startsWith("/") ? frontendResetPasswordPath : "/" + frontendResetPasswordPath;
+        String resetLink = frontendBaseUrl + resetPath + "?token=" + token;
         sendLinkResetPassword(resetLink, user.getEmail());
     }
 
     @Async
     public void sendLinkResetPassword(String resetLink, String username) {
-        //
+        log.info("Password reset link for {}: {}", username, resetLink);
     }
 
     @Transactional

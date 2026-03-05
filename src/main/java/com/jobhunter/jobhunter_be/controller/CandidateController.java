@@ -5,6 +5,7 @@ import com.jobhunter.jobhunter_be.dto.request.CandidateRequest;
 import com.jobhunter.jobhunter_be.dto.response.CandidateResponse;
 import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
 import com.jobhunter.jobhunter_be.service.impl.CandidateServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,7 @@ public class CandidateController {
 
     @PreAuthorize("hasRole('CANDIDATE')")
     @PutMapping("/setting")
-    public ResponseEntity<RestResponse<CandidateResponse>> updateCandidate(@RequestBody CandidateRequest request, Authentication authentication) throws NotFoundException {
+    public ResponseEntity<RestResponse<CandidateResponse>> updateCandidate(@Valid @RequestBody CandidateRequest request, Authentication authentication) throws NotFoundException {
         CandidateResponse response = candidateService.updateCandidate(request, authentication.getName());
         return ResponseEntity.ok(RestResponse.success(response, "Candidate information updated successfully"));
     }
@@ -39,4 +40,3 @@ public class CandidateController {
         return ResponseEntity.ok(RestResponse.success(response, "Candidate profile fetched successfully"));
     }
 }
-

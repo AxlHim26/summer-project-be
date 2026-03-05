@@ -11,12 +11,55 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<RestResponse<Void>> handleNotFound(NotFoundException exception) {
+        log.warn("Resource not found: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                RestResponse.error(
+                        HttpStatus.NOT_FOUND.value(),
+                        "NOT FOUND",
+                        exception.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<RestResponse<Void>> handleIllegalArgument(IllegalArgumentException exception) {
+        log.warn("Invalid request: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                RestResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "INVALID REQUEST",
+                        exception.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<RestResponse<Void>> handleValidation(MethodArgumentNotValidException exception) {
+        String detail = exception.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .filter(message -> message != null && !message.isBlank())
+                .findFirst()
+                .orElse("Validation failed");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                RestResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "VALIDATION ERROR",
+                        detail
+                )
+        );
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<RestResponse<Void>> handleUsernameNotFound(UsernameNotFoundException exception) {
         log.warn("User not found: {}", exception.getMessage());
@@ -78,7 +121,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -184,12 +227,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredVeryficationToken.class)
-    public ResponseEntity<RestResponse<Void>> handleExpiredVeryficationToken(ExpiredRefreshTokenException e) {
+    public ResponseEntity<RestResponse<Void>> handleExpiredVeryficationToken(ExpiredVeryficationToken e) {
         log.warn("Expired veryfication token: {}", e.getMessage());
 
         RestResponse<Void> apiResponse = RestResponse.error(
                 HttpStatus.BAD_REQUEST.value(),
-                "Veryfication not found",
+                "VERIFICATION TOKEN EXPIRED",
                 e.getMessage()
         );
 
