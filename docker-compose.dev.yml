@@ -1,50 +1,67 @@
-version: '3.8'
-
 services:
   app:
+    container_name: ${APP_CONTAINER_NAME:-jobhunter-app-dev}
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: jobhunter-app-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${APP_PORT:-8080}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-jobhunter}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      JWT_BASE64_SECRET: ${JWT_BASE64_SECRET:-U29tZVZlcnlMb25nU2VjcmV0S2V5Rm9yU2lnbmluZ0pXVHdpdGg1MTI=}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:-3600000}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:-2592000000}
+      WEBSOCKET_ALLOWED_ORIGINS: ${WEBSOCKET_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:3000}
+    command: ./mvnw spring-boot:run
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
     volumes:
-      - .:/app
-      - ~/.m2:/root/.m2
+      - .:/workspace
+      - maven_cache:/root/.m2
     depends_on:
-      - db
-    networks:
-      - jobhunter-network
+      db:
+        condition: service_healthy
 
   db:
-    image: postgres:16
-    container_name: jobhunter-db-dev
+    container_name: ${DB_CONTAINER_NAME:-jobhunter-db-dev}
+    image: postgres:${POSTGRES_VERSION:-17}
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: jobhunter
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-jobhunter}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - jobhunter-network
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-jobhunter}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin-dev
+    container_name: ${PGADMIN_CONTAINER_NAME:-pgadmin-dev}
+    image: dpage/pgadmin4:${PGADMIN_VERSION:-8}
+    restart: unless-stopped
+    profiles:
+      - tools
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     depends_on:
-      - db
-    networks:
-      - jobhunter-network
+      db:
+        condition: service_healthy
 
 volumes:
-  pgdata:
-
-networks:
-  jobhunter-network:
+  postgres_data:
+  maven_cache:

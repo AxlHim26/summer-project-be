@@ -1,13 +1,12 @@
-# Dockerfile.dev
-FROM eclipse-temurin:21-jdk
+# syntax=docker/dockerfile:1.7
 
-WORKDIR /app
+FROM maven:3.9.9-eclipse-temurin-21
+WORKDIR /workspace
 
-COPY mvnw ./
 COPY .mvn .mvn
-COPY pom.xml .
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw && ./mvnw -q -DskipTests dependency:go-offline
 
-RUN chmod +x ./mvnw && ./mvnw dependency:go-offline
-
+COPY src src
 EXPOSE 8080
 CMD ["./mvnw", "spring-boot:run"]

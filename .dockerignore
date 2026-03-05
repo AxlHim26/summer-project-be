@@ -1,0 +1,12 @@
+.git
+.gitignore
+.idea
+.vscode
+
+target
+
+.env
+.env.*
+
+docker-compose*.yml
+local-docker-compose.yml
