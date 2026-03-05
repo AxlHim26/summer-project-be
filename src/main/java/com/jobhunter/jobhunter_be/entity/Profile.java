@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
@@ -32,4 +33,8 @@ public class Profile {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "social_link_id")
     private SocialLink socialLink;
+
+    @OneToOne(mappedBy = "profile")
+    @JsonBackReference
+    private User user;
 }

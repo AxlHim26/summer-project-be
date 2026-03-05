@@ -3,8 +3,10 @@ package com.jobhunter.jobhunter_be.service.impl;
 import com.jobhunter.jobhunter_be.dto.request.SocialLinkRequest;
 import com.jobhunter.jobhunter_be.dto.response.SocialLinkResponse;
 import com.jobhunter.jobhunter_be.entity.SocialLink;
+import com.jobhunter.jobhunter_be.entity.User;
 import com.jobhunter.jobhunter_be.exception.custom.NotFoundException;
 import com.jobhunter.jobhunter_be.repository.SocialLinkRepository;
+import com.jobhunter.jobhunter_be.repository.UserRepository;
 import com.jobhunter.jobhunter_be.service.ISocialLinkService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +18,20 @@ import org.springframework.stereotype.Service;
 public class SocialLinkServiceImpl implements ISocialLinkService {
 
     private final SocialLinkRepository socialLinkRepository;
+    private final UserRepository userRepository;
 
     @Override
     public SocialLinkResponse getSocialLinkByEmail(String email) throws NotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
         SocialLink socialLink = socialLinkRepository.findSocialLinkByUserEmail(email)
-                .orElseThrow(() -> new NotFoundException("SocialLink not found"));
+                .orElse(SocialLink.builder()
+                        .facebookLink("")
+                        .twitterLink("")
+                        .linkedinLink("")
+                        .user(user)
+                        .build());
 
         return SocialLinkResponse.builder()
                 .facebookLink(socialLink.getFacebookLink())
@@ -31,8 +42,16 @@ public class SocialLinkServiceImpl implements ISocialLinkService {
 
     @Override
     public SocialLinkResponse updateSocialLinkByEmail(SocialLinkRequest request, String email) throws NotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
         SocialLink socialLink = socialLinkRepository.findSocialLinkByUserEmail(email)
-                .orElseThrow(() -> new NotFoundException("SocialLink not found"));
+                .orElse(SocialLink.builder()
+                        .facebookLink("")
+                        .twitterLink("")
+                        .linkedinLink("")
+                        .user(user)
+                        .build());
 
         socialLink.setFacebookLink(request.getFacebookLink());
         socialLink.setTwitterLink(request.getTwitterLink());
